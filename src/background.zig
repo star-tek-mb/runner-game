@@ -1,15 +1,11 @@
 const rl = @import("c.zig").raylib;
-const std = @import("std");
-
 
 pub const Background = struct {
     texture: rl.Texture,
-    x: f32,
 
     pub fn init() Background {
         var self: Background = undefined;
         self.texture = rl.LoadTexture("assets/Background.png");
-        self.x = 0.0;
         return self;
     }
 

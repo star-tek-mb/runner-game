@@ -1,5 +1,4 @@
 const rl = @import("c.zig").raylib;
-const std = @import("std");
 const Background = @import("background.zig").Background;
 
 pub fn main() !void {
