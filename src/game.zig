@@ -9,7 +9,6 @@ pub const Game = struct {
     bg: Background,
     hero: Hero,
     enemy: FlyingEye,
-    randomizer: std.rand.Random,
 
     pub fn init() Game {
         var game: Game = undefined;

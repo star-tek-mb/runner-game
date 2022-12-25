@@ -13,10 +13,10 @@ pub const FlyingEye = struct {
         Hit
     };
 
-    textures: [@typeInfo(Animation).Enum.fields.len]rl.Texture2D,
+    textures: [@typeInfo(Animation).Enum.fields.len]rl.Texture,
     animation: Animation,
     previous_animation: Animation,
-    animation_index: i16,
+    animation_index: u8,
     loop: bool,
     playing: bool,
     elapsed: f32,
@@ -27,26 +27,24 @@ pub const FlyingEye = struct {
     y_vel: f32,
 
     pub fn init() FlyingEye {
-        var self: FlyingEye = undefined;
+        
+        var self = std.mem.zeroes(FlyingEye);
         inline for (@typeInfo(Animation).Enum.fields) |field, i| {
             self.textures[i] = rl.LoadTexture("assets/Flying eye/" ++ field.name ++ ".png");
         }
         self.animation = .Flight;
+        self.previous_animation = .Flight;
         self.animation_index = 0;
         self.loop = true;
         self.playing = true;
         self.elapsed = 0.0;
+        self.time = 0.0;
         const w = rl.GetScreenWidth();
         self.x = @intToFloat(f32, w) / 3.0;
         self.y = @intToFloat(f32, rl.GetScreenHeight()) / 3.0;
         self.x_vel = @intToFloat(f32, w) / 1.5;
         self.y_vel = @intToFloat(f32, w) / 1.5;
         return self;
-    }
-
-    pub fn animationFinished(self: *FlyingEye, last: Animation) void {
-        _ = self;
-        _ = last;
     }
 
     pub fn playAnimation(self: *FlyingEye, animation: Animation, loop: bool) void {
@@ -59,6 +57,7 @@ pub const FlyingEye = struct {
     }
 
     pub fn update(self: *FlyingEye, delta: f32) void {
+        
         const w = rl.GetScreenWidth();
         const h = rl.GetScreenHeight();
         const speed = @intToFloat(f32, w) / 1.5;
@@ -72,14 +71,11 @@ pub const FlyingEye = struct {
         if (self.animation_index >= self.getAnimationFrameCount(self.animation)) {
             self.animation_index = if (self.loop) 0 else self.getAnimationFrameCount(self.animation) - 1;
             self.playing = if (self.loop) true else false;
-            if (!self.playing) {
-                self.animationFinished(self.animation);
-            }
         }
 
         var sprite_size: f32 = @intToFloat(f32, h) * 100.0 / FrameSize;
         var draw_rect = rl.Rectangle{ .x = self.x, .y = self.y, .width = sprite_size, .height = sprite_size };
-        var sprite_rect = rl.Rectangle{ .x = @intToFloat(f32, self.animation_index * FrameSize), .y = 0.0, .width = @intToFloat(f32, FrameSize), .height = @intToFloat(f32, FrameSize) };
+        var sprite_rect = rl.Rectangle{ .x = @intToFloat(f32, self.animation_index) * FrameSize, .y = 0.0, .width = @intToFloat(f32, FrameSize), .height = @intToFloat(f32, FrameSize) };
         rl.DrawTexturePro(self.textures[@enumToInt(self.animation)], sprite_rect, draw_rect, rl.Vector2{ .x = 0.0, .y = 0.0 }, 0.0, rl.WHITE);
 
         if (self.time > 1.0) {
@@ -114,7 +110,7 @@ pub const FlyingEye = struct {
     }
 
     pub fn deinit(self: *FlyingEye) void {
-        for (self.textures) |texture| {
+        inline for (self.textures) |texture| {
             rl.UnloadTexture(texture);
         }
     }

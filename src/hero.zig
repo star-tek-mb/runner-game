@@ -17,10 +17,10 @@ pub const Hero = struct {
         Hit
     };
 
-    textures: [@typeInfo(Animation).Enum.fields.len]rl.Texture2D,
+    textures: [@typeInfo(Animation).Enum.fields.len]rl.Texture,
     animation: Animation,
     previous_animation: Animation,
-    animation_index: i16,
+    animation_index: u8,
     loop: bool,
     playing: bool,
     on_ground: bool,
@@ -31,7 +31,8 @@ pub const Hero = struct {
     bg_vel: f32,
 
     pub fn init() Hero {
-        var self: Hero = undefined;
+        
+        var self = std.mem.zeroes(Hero);
         inline for (@typeInfo(Animation).Enum.fields) |field, i| {
             self.textures[i] = rl.LoadTexture("assets/Hero/" ++ field.name ++ ".png");
         }
@@ -70,6 +71,7 @@ pub const Hero = struct {
     }
 
     pub fn update(self: *Hero, delta: f32) void {
+        
         const w = rl.GetScreenWidth();
         const h = rl.GetScreenHeight();
         const speed = @intToFloat(f32, w) / 1.5;
@@ -96,7 +98,7 @@ pub const Hero = struct {
 
         var sprite_size: f32 = @intToFloat(f32, h) * 200.0 / FrameSize;
         var draw_rect = rl.Rectangle{ .x = self.x, .y = self.y, .width = sprite_size, .height = sprite_size };
-        var sprite_rect = rl.Rectangle{ .x = @intToFloat(f32, self.animation_index * FrameSize), .y = 0.0, .width = @intToFloat(f32, FrameSize), .height = @intToFloat(f32, FrameSize) };
+        var sprite_rect = rl.Rectangle{ .x = @intToFloat(f32, self.animation_index) * FrameSize, .y = 0.0, .width = @intToFloat(f32, FrameSize), .height = @intToFloat(f32, FrameSize) };
         rl.DrawTexturePro(self.textures[@enumToInt(self.animation)], sprite_rect, draw_rect, rl.Vector2{ .x = 0.0, .y = 0.0 }, 0.0, rl.WHITE);
 
         if (rl.IsMouseButtonPressed(rl.MOUSE_BUTTON_LEFT) and self.animation != .Attack1) {
@@ -141,7 +143,7 @@ pub const Hero = struct {
     }
 
     pub fn deinit(self: *Hero) void {
-        for (self.textures) |texture| {
+        inline for (self.textures) |texture| {
             rl.UnloadTexture(texture);
         }
     }
