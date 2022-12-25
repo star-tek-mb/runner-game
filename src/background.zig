@@ -14,7 +14,7 @@ pub const Background = struct {
     }
 
     // pub inline fn update(self: *Background) void {
-    pub inline fn update(self: *Background) void {
+    pub fn update(self: *Background) void {
         var w = rl.GetScreenWidth();
         var h = rl.GetScreenHeight();
 
